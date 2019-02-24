@@ -4,8 +4,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -15,6 +19,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
     private GameThread gameThread;
     private GameCharacter char1;
 
+
     public GameSurface(Context context)  {
 
         super(context);
@@ -23,8 +28,8 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
     }
 
 
-    public void update()  {
 
+    public void update()  {
         this.char1.update();
     }
 
@@ -32,31 +37,20 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void draw(Canvas canvas)  {
 
-        super.draw(canvas);
-        this.char1.draw(canvas);
-    }
-
-
-    public static Bitmap drawableToBitmap (Drawable drawable) {
-
-        if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable)drawable).getBitmap();
-        }
-
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-
-        return bitmap;
+       super.draw(canvas);
+       this.char1.draw(canvas);
     }
 
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
 
-        Bitmap charBitmap1 = BitmapFactory.decodeResource(this.getResources(),R.drawable.char1);
-        this.char1 = new GameCharacter(this,charBitmap1,100,50);
+     //   this.setBackground(this.getResources().getDrawable(R.drawable.char2));
+
+        Bitmap char1Bitmap1 = BitmapFactory.decodeResource(this.getResources(),R.drawable.char1);
+        this.char1 = new GameCharacter(this,char1Bitmap1,100,50);
+
+        Log.i("1", "surface created");
 
         this.gameThread = new GameThread(this,holder);
         this.gameThread.setRunning(true);
@@ -72,7 +66,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        boolean retry= true;
+        boolean retry = true;
         while(retry) {
             try {
                 this.gameThread.setRunning(false);
@@ -80,7 +74,25 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
             }catch(InterruptedException e)  {
                 e.printStackTrace();
             }
-            retry= true;
+            retry = true;
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            int x = (int)event.getX();
+            int y = (int)event.getY();
+
+            int movingVectorX = x -  this.char1.getX() ;
+            int movingVectorY = y -  this.char1.getY() ;
+
+            Log.i("onTouch-", "x : " + x + ", y : "+ y + ", movingVectorX : " + movingVectorX + ", movingVectorY : " + movingVectorY);
+
+            this.char1.setMovingVector(x, y);
+            return true;
+        }
+        return false;
     }
 }

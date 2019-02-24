@@ -13,9 +13,8 @@ public abstract class GameObject {
     protected final int HEIGHT;
 
     protected final int width;
-
-
     protected final int height;
+
     protected int x;
     protected int y;
 
@@ -37,7 +36,6 @@ public abstract class GameObject {
 
 
     protected Bitmap createSubImageAt(int row, int col) {
-        // createBitmap(bitmap, x, y, width, height).
         Bitmap subImage = Bitmap.createBitmap(image, col * width, row * height, width, height);
         return subImage;
     }
@@ -45,16 +43,13 @@ public abstract class GameObject {
     public int getX() {
         return this.x;
     }
-
     public int getY() {
         return this.y;
     }
 
-
     public int getHeight() {
         return height;
     }
-
     public int getWidth() {
         return width;
     }
