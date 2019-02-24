@@ -2,22 +2,22 @@ package shree.e.animationgame;
 
 import android.graphics.Bitmap;
 
-public class GameObject {
+public abstract class GameObject {
 
-    public Bitmap image;
+    protected Bitmap image;
 
-    public int rowCount;
-    public int colCount;
+    protected final int rowCount;
+    protected final int colCount;
 
-    public int WIDTH;
-    public int HEIGHT;
+    protected final int WIDTH;
+    protected final int HEIGHT;
 
-    public int width;
-    public int height;
+    protected final int width;
 
-    public int x;
-    public int y;
 
+    protected final int height;
+    protected int x;
+    protected int y;
 
     public GameObject(Bitmap image, int rowCount, int colCount, int x, int y) {
 
@@ -31,16 +31,16 @@ public class GameObject {
         this.WIDTH = image.getWidth();
         this.HEIGHT = image.getHeight();
 
-        this.width = this.WIDTH/colCount;
-        this.height = this.HEIGHT/rowCount;
+        this.width = this.WIDTH / colCount;
+        this.height = this.HEIGHT / rowCount;
     }
 
 
     protected Bitmap createSubImageAt(int row, int col) {
-        Bitmap subImage = Bitmap.createBitmap(image, col* width, row* height, width, height);
+        // createBitmap(bitmap, x, y, width, height).
+        Bitmap subImage = Bitmap.createBitmap(image, col * width, row * height, width, height);
         return subImage;
     }
-
 
     public int getX() {
         return this.x;
@@ -49,6 +49,7 @@ public class GameObject {
     public int getY() {
         return this.y;
     }
+
 
     public int getHeight() {
         return height;
