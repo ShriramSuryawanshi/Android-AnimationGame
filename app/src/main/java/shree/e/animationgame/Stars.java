@@ -11,7 +11,8 @@ public class Stars extends GameObject {
     private int index = 0 ;
     private float counter = 0.0f;
 
-    private boolean finish = false;
+    public int timer = 1000;
+
     private GameSurface gameSurface;
 
     private Bitmap[] stars = new Bitmap[6];
@@ -37,6 +38,8 @@ public class Stars extends GameObject {
             this.index = 0;
             counter = 0.0f;
         }
+
+        this.timer--;
     }
 
 

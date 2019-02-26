@@ -18,6 +18,12 @@ public abstract class GameObject {
     protected int x;
     protected int y;
 
+    protected int left;
+    protected int right;
+    protected int top;
+    protected int bottom;
+
+
     public GameObject(Bitmap image, int rowCount, int colCount, int x, int y) {
 
         this.image = image;
@@ -39,6 +45,10 @@ public abstract class GameObject {
             this.height = this.HEIGHT;
         }
 
+        this.left = this.x;
+        this.right = this.x + this.width;
+        this.top = this.y;
+        this.bottom = this.y + this.height;
     }
 
 
