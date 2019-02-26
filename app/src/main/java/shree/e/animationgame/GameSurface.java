@@ -12,14 +12,13 @@ import android.view.SurfaceView;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 
 public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
     private GameThread gameThread;
-
     private GameCharacter char1;
-    private Stars star1;
     private final List<Stars> starList = new ArrayList<Stars>();
 
     private Bitmap[] starArray = new Bitmap[6];
@@ -34,9 +33,19 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
     public void update()  {
 
-        this.char1.update();
-        this.star1.update();
+        Log.i("Updated-","updated");
 
+        this.char1.update();
+
+        for (Stars star1: starList) {
+            star1.update();
+
+            if(Math.abs(star1.x - char1.x) <= 50 && Math.abs(star1.y - char1.y) <= 50) {
+                Random rand = new Random();
+                star1.x = rand.nextInt((1800-10)+1) + 10;
+                star1.y = rand.nextInt((900-10)+1) + 10;
+            }
+        }
     }
 
 
@@ -45,7 +54,9 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
        super.draw(canvas);
        this.char1.draw(canvas);
-       this.star1.draw(canvas);
+
+       for (Stars star1: starList)
+            star1.draw(canvas);
     }
 
 
@@ -65,9 +76,14 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
         starArray[4] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star5);
         starArray[5] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star6);
 
+        for (int i = 0; i < 7; i++) {
 
+            Random rand = new Random();
+            int x = rand.nextInt((1900-10)+1) + 10;
+            int y = rand.nextInt((990-10)+1) + 10;
 
-        this.star1 = new Stars(this, starArray[0], starArray, 500,500);
+            starList.add(new Stars(this, starArray[0], starArray, x, y));
+        }
 
         this.gameThread = new GameThread(this, holder);
         this.gameThread.setRunning(true);
@@ -105,7 +121,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
             int movingVectorX = x -  this.char1.getX() ;
             int movingVectorY = y -  this.char1.getY() ;
 
-            Log.i("onTouch-", "x : " + x + ", y : "+ y + ", movingVectorX : " + movingVectorX + ", movingVectorY : " + movingVectorY);
+           // Log.i("onTouch-", "x : " + x + ", y : "+ y + ", movingVectorX : " + movingVectorX + ", movingVectorY : " + movingVectorY);
 
             this.char1.setTargetPosition(x, y);
             return true;

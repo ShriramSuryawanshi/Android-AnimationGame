@@ -3,6 +3,8 @@ package shree.e.animationgame;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
+import java.util.Random;
+
 
 public class Stars extends GameObject {
 
@@ -20,12 +22,15 @@ public class Stars extends GameObject {
         this.gameSurface = GameSurface;
 
         this.stars = stars;
+
+        Random rand = new Random();
+        this.counter = (float) rand.nextFloat() * (5.0f - 0.0f) + 0.0f;
     }
 
 
     public void update()  {
 
-        counter = counter + 0.1f;
+        this.counter = counter + 0.1f;
         this.index = (int) Math.floor(counter);
 
         if(this.index >= 5) {
