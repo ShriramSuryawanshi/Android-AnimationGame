@@ -12,8 +12,8 @@ public abstract class GameObject {
     protected final int WIDTH;
     protected final int HEIGHT;
 
-    protected final int width;
-    protected final int height;
+    protected int width;
+    protected int height;
 
     protected int x;
     protected int y;
@@ -30,8 +30,15 @@ public abstract class GameObject {
         this.WIDTH = image.getWidth();
         this.HEIGHT = image.getHeight();
 
-        this.width = this.WIDTH / colCount;
-        this.height = this.HEIGHT / rowCount;
+        if(rowCount != 0 && colCount != 0) {
+            this.width = this.WIDTH / colCount;
+            this.height = this.HEIGHT / rowCount;
+        }
+        else {
+            this.width = this.WIDTH;
+            this.height = this.HEIGHT;
+        }
+
     }
 
 

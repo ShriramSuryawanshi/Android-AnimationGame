@@ -1,9 +1,7 @@
 package shree.e.animationgame;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.util.Log;
 
 
 public class GameCharacter extends GameObject {
@@ -21,8 +19,8 @@ public class GameCharacter extends GameObject {
     private Bitmap[] topToBottoms;
     private Bitmap[] bottomToTops;
 
-    private int movingVectorX = 0;
-    private int movingVectorY = 0;
+    private int targetX = 0;
+    private int targetY = 0;
 
     private long lastDrawNanoTime = -1;
 
@@ -33,7 +31,7 @@ public class GameCharacter extends GameObject {
 
         super(image, 4, 3, x, y);
 
-        this.gameSurface= gameSurface;
+        this.gameSurface = gameSurface;
 
         this.topToBottoms = new Bitmap[colCount];
         this.rightToLefts = new Bitmap[colCount];
@@ -80,61 +78,63 @@ public class GameCharacter extends GameObject {
             this.colUsing = 0;
         }
 
-        if (this.x == movingVectorX) {
-            if(this.y == movingVectorY)
-                this.colUsing = 1;
-        }
-
-
         long now = System.nanoTime();
-
 
         if(lastDrawNanoTime == -1) {
             lastDrawNanoTime = now;
         }
 
-        if (this.x < movingVectorX) this.x++;
-        if (this.x > movingVectorX) this.x--;
-        if (this.y < movingVectorY) this.y++;
-        if (this.y > movingVectorY) this.y--;
+        if (this.x < targetX) this.x += 3;
+        if (this.x > targetX) this.x -= 3;
+        if (this.y < targetY) this.y += 3;
+        if (this.y > targetY) this.y -= 3;
 
         if(this.x < 0 )  {
             this.x = 0;
-            this.movingVectorX = - this.movingVectorX;
+            this.targetX = - this.targetX;
 
         } else if(this.x > this.gameSurface.getWidth() - width)  {
             this.x = this.gameSurface.getWidth()- width;
-            this.movingVectorX = - this.movingVectorX;
+            this.targetX = - this.targetX;
         }
 
         if(this.y < 0 )  {
             this.y = 0;
-            this.movingVectorY = - this.movingVectorY;
+            this.targetY = - this.targetY;
 
         } else if(this.y > this.gameSurface.getHeight() - height)  {
             this.y= this.gameSurface.getHeight() - height;
-            this.movingVectorY = - this.movingVectorY ;
+            this.targetY = - this.targetY;
         }
 
-        if (movingVectorX > this.x)      this.rowUsing = ROW_LEFT_TO_RIGHT;
-        if (movingVectorX < this.x)      this.rowUsing = ROW_RIGHT_TO_LEFT;
+        if (targetX > this.x)      this.rowUsing = ROW_LEFT_TO_RIGHT;
+        if (targetX < this.x)      this.rowUsing = ROW_RIGHT_TO_LEFT;
 
-        if (movingVectorX == this.x) {
+        if (Math.abs(this.x - targetX) <= 3) {
 
-            if(movingVectorY > this.y)  this.rowUsing = ROW_TOP_TO_BOTTOM;
-            if(movingVectorY < this.y)  this.rowUsing = ROW_BOTTOM_TO_TOP;
-            if(movingVectorY == this.y)  this.rowUsing = ROW_TOP_TO_BOTTOM;
+            if(targetY > this.y)  this.rowUsing = ROW_TOP_TO_BOTTOM;
+            if(targetY < this.y)  this.rowUsing = ROW_BOTTOM_TO_TOP;
+            if(targetY == this.y)  this.rowUsing = ROW_TOP_TO_BOTTOM;
+        }
+
+        if (Math.abs(this.x - targetX) <= 3) {
+            if(Math.abs(this.y - targetY) <= 3) {
+                this.colUsing = 1;
+                this.rowUsing = 0;
+            }
         }
     }
+
 
     public void draw(Canvas canvas)  {
         Bitmap bitmap = this.getCurrentMoveBitmap();
-        canvas.drawBitmap(bitmap,x, y, null);
+        canvas.drawBitmap(bitmap, x, y, null);
         this.lastDrawNanoTime= System.nanoTime();
     }
 
-    public void setMovingVector(int movingVectorX, int movingVectorY)  {
-        this.movingVectorX= movingVectorX;
-        this.movingVectorY = movingVectorY;
+
+    public void setTargetPosition(int x, int y)  {
+        this.targetX = x;
+        this.targetY = y;
     }
 }

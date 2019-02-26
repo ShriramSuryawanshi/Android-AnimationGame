@@ -4,21 +4,25 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 
 public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
     private GameThread gameThread;
-    private GameCharacter char1;
 
+    private GameCharacter char1;
+    private Stars star1;
+    private final List<Stars> starList = new ArrayList<Stars>();
+
+    private Bitmap[] starArray = new Bitmap[6];
 
     public GameSurface(Context context)  {
 
@@ -28,9 +32,11 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
     }
 
 
-
     public void update()  {
+
         this.char1.update();
+        this.star1.update();
+
     }
 
 
@@ -39,6 +45,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
        super.draw(canvas);
        this.char1.draw(canvas);
+       this.star1.draw(canvas);
     }
 
 
@@ -48,11 +55,21 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
      //   this.setBackground(this.getResources().getDrawable(R.drawable.char2));
 
         Bitmap char1Bitmap1 = BitmapFactory.decodeResource(this.getResources(),R.drawable.char1);
-        this.char1 = new GameCharacter(this,char1Bitmap1,100,50);
+        this.char1 = new GameCharacter(this, char1Bitmap1,0,0);
 
-        Log.i("1", "surface created");
 
-        this.gameThread = new GameThread(this,holder);
+        starArray[0] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star1);
+        starArray[1] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star2);
+        starArray[2] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star3);
+        starArray[3] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star4);
+        starArray[4] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star5);
+        starArray[5] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star6);
+
+
+
+        this.star1 = new Stars(this, starArray[0], starArray, 500,500);
+
+        this.gameThread = new GameThread(this, holder);
         this.gameThread.setRunning(true);
         this.gameThread.start();
     }
@@ -90,7 +107,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
             Log.i("onTouch-", "x : " + x + ", y : "+ y + ", movingVectorX : " + movingVectorX + ", movingVectorY : " + movingVectorY);
 
-            this.char1.setMovingVector(x, y);
+            this.char1.setTargetPosition(x, y);
             return true;
         }
         return false;
