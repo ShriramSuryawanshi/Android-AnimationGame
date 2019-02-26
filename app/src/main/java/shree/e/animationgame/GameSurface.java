@@ -23,6 +23,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
     private GameThread gameThread;
     private GameCharacter char1;
     private final List<Stars> starList = new ArrayList<Stars>();
+    private final List<Explosion> explosionList = new ArrayList<Explosion>();
 
     public static int score = 0;
 
@@ -40,11 +41,30 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
         this.char1.update();
 
+        for(Explosion explosion: this.explosionList)  {
+            explosion.update();
+        }
+
         for (Stars star1: starList) {
 
             star1.update();
 
             if(star1.timer == 0) {
+
+                Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(),R.drawable.explosion);
+                Explosion explosion = new Explosion(this, bitmap, star1.getX()-20, star1.getY()-20);
+
+                this.explosionList.add(explosion);
+
+                Iterator<Explosion> iterator= this.explosionList.iterator();
+                while(iterator.hasNext())  {
+                    Explosion explosion1 = iterator.next();
+
+                    if(explosion1.isFinish()) {
+                        iterator.remove();
+                        continue;
+                    }
+                }
 
                 Random rand = new Random();
                 star1.x = rand.nextInt((1800 - 10) + 1) + 10;
@@ -54,17 +74,13 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
                 star1.timer = 1000;
             }
 
-            int star_x1 = star1.x;
-            int star_x2 = star1.x + star1.getWidth();
-            int star_y1 = star1.y;
-            int star_y2 = star1.y + star1.getHeight();
+            int x1 = char1.x;
+            int x2 = char1.x + char1.getWidth();
+            int y1 = char1.y;
+            int y2 = char1.y + char1.getHeight();
 
-            int char_x1 = char1.x;
-            int char_x2 = char1.x + char1.getWidth();
-            int char_y1 = char1.y;
-            int char_y2 = char1.y + char1.getHeight();
-
-            if ((char_x1 <= star_x2 && char_x1 >= star_x1 && char_y1 <= star_y2 && char_y1 >= star_y1) || (char_x2 <= star_x2 && char_x2 >= star_x1 && char_y2 <= star_y2 && char_y2 >= star_y1 )) {
+            if((star1.getX() < x1 && x1 < star1.getX() + star1.getWidth() && star1.getY() < y1 && y1 < star1.getY()+ star1.getHeight())
+                    || star1.getX() < x2 && x2 < star1.getX() + star1.getWidth() && star1.getY() < y2 && y2 < star1.getY()+ star1.getHeight()){
 
                 Random rand = new Random();
                 star1.x = rand.nextInt((1800 - 10) + 1) + 10;
@@ -85,6 +101,10 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
         super.draw(canvas);
         this.char1.draw(canvas);
+
+        for(Explosion explosion: this.explosionList)  {
+            explosion.draw(canvas);
+        }
 
         for (Stars star1: starList) {
 
