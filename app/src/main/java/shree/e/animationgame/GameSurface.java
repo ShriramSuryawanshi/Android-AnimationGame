@@ -6,6 +6,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.RectF;
+import android.graphics.Region;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -85,19 +88,16 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
                 star1.timer = 1000;
             }
 
-            int x1 = char1.x;
-            int x2 = char1.x + char1.getWidth();
-            int y1 = char1.y;
-            int y2 = char1.y + char1.getHeight();
+            RectF char_rect = new RectF(char1.x, char1.y,char1.x + char1.width,char1.y + char1.height);
+            RectF star_rect = new RectF(star1.x, star1.y,star1.x + star1.width,star1.y + star1.height);
 
-            if((star1.getX() < x1 && x1 < star1.getX() + star1.getWidth() && star1.getY() < y1 && y1 < star1.getY()+ star1.getHeight())
-                    || star1.getX() < x2 && x2 < star1.getX() + star1.getWidth() && star1.getY() < y2 && y2 < star1.getY()+ star1.getHeight()){
+            if(char_rect.intersect(star_rect)) {
 
                 this.playSoundCoins();
 
                 Random rand = new Random();
                 star1.x = rand.nextInt((1800 - 10) + 1) + 10;
-                star1.y = rand.nextInt((900 - 10) + 1) + 10;
+                star1.y = rand.nextInt((900 - 100) + 1) + 100;
 
                 score += (int)(star1.timer/100) * 10;
                 star1.timer = 1000;
@@ -129,6 +129,9 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
         paint.setTextSize(40);
         canvas.drawText("Score : " + score, 1650, 50, paint);
+
+        paint.setTextSize(25);
+        canvas.drawText("Collect the Coins! You will earn points based on coins value at the time you grab it, if coins value becomes 0, it will explode and you will lose 10 points!", 50, 1000, paint);
     }
 
 
@@ -138,7 +141,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
      //   this.setBackground(this.getResources().getDrawable(R.drawable.char2));
 
         Bitmap char1Bitmap1 = BitmapFactory.decodeResource(this.getResources(),R.drawable.char1);
-        this.char1 = new GameCharacter(this, char1Bitmap1,0,0);
+        this.char1 = new GameCharacter(this, char1Bitmap1,500,500);
 
         starArray[0] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star1);
         starArray[1] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star2);
@@ -151,7 +154,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
             Random rand = new Random();
             int x = rand.nextInt((1800-10)+1) + 10;
-            int y = rand.nextInt((900-10)+1) + 10;
+            int y = rand.nextInt((900-100)+1) + 100;
             starList.add(new Stars(this, starArray[0], starArray, x, y));
         }
 
@@ -169,7 +172,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        boolean retry = true;
+       boolean retry = true;
         while(retry) {
             try {
                 this.gameThread.setRunning(false);

@@ -20,12 +20,12 @@ public class Explosion extends GameObject {
     public void update()  {
         this.colIndex++;
 
-        if(this.colIndex==0 && this.rowIndex==0) {
+        if(this.colIndex == 0 && this.rowIndex == 0) {
             this.gameSurface.playSoundExplosion();
         }
 
         if(this.colIndex >= this.colCount)  {
-            this.colIndex =0;
+            this.colIndex = 0;
             this.rowIndex++;
 
             if(this.rowIndex>= this.rowCount)  {
