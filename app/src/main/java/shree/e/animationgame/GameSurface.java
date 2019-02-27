@@ -6,6 +6,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -26,14 +30,21 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
     private final List<Explosion> explosionList = new ArrayList<Explosion>();
 
     public static int score = 0;
-
     private Bitmap[] starArray = new Bitmap[6];
+
+    private static final int MAX_STREAMS=100;
+    private int soundExplosion;
+    private int soundCoins;
+
+    private boolean soundPoolLoaded;
+    private SoundPool soundPool;
 
     public GameSurface(Context context)  {
 
         super(context);
         this.setFocusable(true);
         this.getHolder().addCallback(this);
+        this.initSoundPool();
     }
 
 
@@ -81,6 +92,8 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
             if((star1.getX() < x1 && x1 < star1.getX() + star1.getWidth() && star1.getY() < y1 && y1 < star1.getY()+ star1.getHeight())
                     || star1.getX() < x2 && x2 < star1.getX() + star1.getWidth() && star1.getY() < y2 && y2 < star1.getY()+ star1.getHeight()){
+
+                this.playSoundCoins();
 
                 Random rand = new Random();
                 star1.x = rand.nextInt((1800 - 10) + 1) + 10;
@@ -175,14 +188,46 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
             int x = (int)event.getX();
             int y = (int)event.getY();
 
-            int movingVectorX = x -  this.char1.getX() ;
-            int movingVectorY = y -  this.char1.getY() ;
-
-           // Log.i("onTouch-", "x : " + x + ", y : "+ y + ", movingVectorX : " + movingVectorX + ", movingVectorY : " + movingVectorY);
-
             this.char1.setTargetPosition(x, y);
             return true;
         }
         return false;
+    }
+
+
+    private void initSoundPool()  {
+
+        if (Build.VERSION.SDK_INT >= 21 ) {
+
+            AudioAttributes audioAttrib = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build();
+            SoundPool.Builder builder= new SoundPool.Builder();
+            builder.setAudioAttributes(audioAttrib).setMaxStreams(MAX_STREAMS);
+            this.soundPool = builder.build();
+        }
+        else
+            this.soundPool = new SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
+
+        this.soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() { @Override public void onLoadComplete(SoundPool soundPool, int sampleId, int status) { soundPoolLoaded = true; } });
+
+        this.soundCoins = this.soundPool.load(this.getContext(), R.raw.coins,1);
+        this.soundExplosion = this.soundPool.load(this.getContext(), R.raw.explosion,1);
+    }
+
+
+    public void playSoundExplosion()  {
+        if(this.soundPoolLoaded) {
+            float leftVolumn = 0.8f;
+            float rightVolumn =  0.8f;
+            int streamId = this.soundPool.play(this.soundExplosion,leftVolumn, rightVolumn, 1, 0, 1f);
+        }
+    }
+
+
+    public void playSoundCoins()  {
+        if(this.soundPoolLoaded) {
+            float leftVolumn = 0.8f;
+            float rightVolumn =  0.8f;
+            int streamId = this.soundPool.play(this.soundCoins,leftVolumn, rightVolumn, 1, 0, 1f);
+        }
     }
 }
