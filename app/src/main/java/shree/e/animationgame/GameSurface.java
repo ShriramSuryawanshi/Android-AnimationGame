@@ -47,6 +47,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
     public int start = 1000;
     public int health = 100;
+    public boolean end = false;
 
     public GameSurface(Context context)  {
 
@@ -59,7 +60,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
     public void update()  {
 
-        if(start <= 0 && health > 0) {
+        if(start <= 0 && !end) {
 
             this.char1.update();
 
@@ -132,7 +133,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
         super.draw(canvas);
 
-        if( start <= 0 && health > 0) {
+        if( start <= 0 && !end) {
 
             this.char1.draw(canvas);
 
@@ -151,7 +152,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
             canvas.drawText("Score : " + score, 1650, 50, paint);
 
             paint.setTextSize(40);
-            canvas.drawText("Health : " + health + "%", 500, 50, paint);
+            canvas.drawText("Health : " + health + "%", 1200, 50, paint);
         }
         else  if (start > 0){
             paint.setTextSize(60);
@@ -159,20 +160,23 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
             paint.setTextSize(35);
             canvas.drawText("Collect the coins and earn the points!!", 200, 400, paint);
-            canvas.drawText("Each coin has value associated with it, which decreases by 10 every second.", 200, 450, paint);
-            canvas.drawText("You will get the equal number of points as the coin has value when you collect it.", 200, 500, paint);
-            canvas.drawText("Once the coin value become 0, coin will explode and you will lose 10 points.", 200, 550, paint);
-            canvas.drawText("Your health will be reduced based on how close you are to the explosion.", 200, 600, paint);
-            canvas.drawText("Game will finish once your health becomes 0.", 200, 650, paint);
-            canvas.drawText("Good Luck!!! Game will start in " + String.valueOf(start/100) +" seconds..", 200, 1000, paint);
+            canvas.drawText("The game character will go in the direction of your touch on the screen, direct it correctly.", 200, 450, paint);
+            canvas.drawText("Each coin has value associated with it, which decreases by 10 every second.", 200, 500, paint);
+            canvas.drawText("You will get the equal number of points as the coin has value when you collect it.", 200, 550, paint);
+            canvas.drawText("Once the coin value become 0, coin will explode and you will lose 10 points.", 200, 600, paint);
+            canvas.drawText("Your health will be reduced based on how close you were to the explosion.", 200, 650, paint);
+            canvas.drawText("Game will finish once your health becomes 0.", 200, 700, paint);
+            canvas.drawText("Good Luck!!! Game will start in " + String.valueOf(start/100) +" seconds..", 200, 900, paint);
 
             start--;
         }
-        else if (health <= 0) {
+
+        if (health <= 0) {
             paint.setTextSize(100);
             canvas.drawText("Game Over!", 800, 500, paint);
             paint.setTextSize(40);
             canvas.drawText("Your Score : " + score, 900, 800, paint);
+            end = true;
         }
     }
 
@@ -182,10 +186,8 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
      //   this.setBackground(this.getResources().getDrawable(R.drawable.char2));
 
-
-
             Bitmap char1Bitmap1 = BitmapFactory.decodeResource(this.getResources(), R.drawable.char1);
-            this.char1 = new GameCharacter(this, char1Bitmap1, 500, 500);
+            this.char1 = new GameCharacter(this, char1Bitmap1, 0, 0);
 
             starArray[0] = BitmapFactory.decodeResource(this.getResources(), R.drawable.star1);
             starArray[1] = BitmapFactory.decodeResource(this.getResources(), R.drawable.star2);
