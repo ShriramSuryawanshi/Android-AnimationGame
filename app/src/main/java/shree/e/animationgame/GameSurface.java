@@ -17,12 +17,15 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+
+import static java.lang.Math.*;
 
 
 public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
@@ -42,6 +45,9 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
     private boolean soundPoolLoaded;
     private SoundPool soundPool;
 
+    public int start = 1000;
+    public int health = 100;
+
     public GameSurface(Context context)  {
 
         super(context);
@@ -53,54 +59,66 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
     public void update()  {
 
-        this.char1.update();
+        if(start <= 0 && health > 0) {
 
-        for(Explosion explosion: this.explosionList)  {
-            explosion.update();
-        }
+            this.char1.update();
 
-        for (Stars star1: starList) {
-
-            star1.update();
-
-            if(star1.timer == 0) {
-
-                Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(),R.drawable.explosion);
-                Explosion explosion = new Explosion(this, bitmap, star1.getX()-20, star1.getY()-20);
-
-                this.explosionList.add(explosion);
-
-                Iterator<Explosion> iterator= this.explosionList.iterator();
-                while(iterator.hasNext())  {
-                    Explosion explosion1 = iterator.next();
-
-                    if(explosion1.isFinish()) {
-                        iterator.remove();
-                        continue;
-                    }
-                }
-
-                Random rand = new Random();
-                star1.x = rand.nextInt((1800 - 10) + 1) + 10;
-                star1.y = rand.nextInt((900 - 10) + 1) + 10;
-
-                score -= 10;
-                star1.timer = 1000;
+            for (Explosion explosion : this.explosionList) {
+                explosion.update();
             }
 
-            RectF char_rect = new RectF(char1.x, char1.y,char1.x + char1.width,char1.y + char1.height);
-            RectF star_rect = new RectF(star1.x, star1.y,star1.x + star1.width,star1.y + star1.height);
+            for (Stars star1 : starList) {
 
-            if(char_rect.intersect(star_rect)) {
+                star1.update();
 
-                this.playSoundCoins();
+                if (star1.timer == 0) {
 
-                Random rand = new Random();
-                star1.x = rand.nextInt((1800 - 10) + 1) + 10;
-                star1.y = rand.nextInt((900 - 100) + 1) + 100;
+                    Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.explosion);
+                    Explosion explosion = new Explosion(this, bitmap, star1.getX() - 30, star1.getY() - 30);
 
-                score += (int)(star1.timer/100) * 10;
-                star1.timer = 1000;
+                    this.explosionList.add(explosion);
+
+                    Iterator<Explosion> iterator = this.explosionList.iterator();
+                    while (iterator.hasNext()) {
+                        Explosion explosion1 = iterator.next();
+
+                        if (explosion1.isFinish()) {
+                            iterator.remove();
+                            continue;
+                        }
+                    }
+
+                    RectF char_rect = new RectF(char1.x, char1.y, char1.x + char1.width, char1.y + char1.height);
+                    RectF star_rect = new RectF(explosion.x, explosion.y, explosion.x + explosion.width, explosion.y + explosion.height);
+
+                    double dist = (((char_rect.centerX() - star_rect.centerX()) * (char_rect.centerX() - star_rect.centerX())) + ((char_rect.centerY() - star_rect.centerY()) * (char_rect.centerY() - star_rect.centerY())));
+
+                    if (dist < 30000) {
+                        health = health - (int) (dist / 1000) - 5;
+                    }
+
+                    Random rand = new Random();
+                    star1.x = rand.nextInt((1800 - 10) + 1) + 10;
+                    star1.y = rand.nextInt((900 - 100) + 1) + 100;
+
+                    score -= 10;
+                    star1.timer = 1000;
+                }
+
+                RectF char_rect = new RectF(char1.x, char1.y, char1.x + char1.width, char1.y + char1.height);
+                RectF star_rect = new RectF(star1.x, star1.y, star1.x + star1.width, star1.y + star1.height);
+
+                if (char_rect.intersect(star_rect)) {
+
+                    this.playSoundCoins();
+
+                    Random rand = new Random();
+                    star1.x = rand.nextInt((1800 - 10) + 1) + 10;
+                    star1.y = rand.nextInt((800 - 100) + 1) + 100;
+
+                    score += (int) (star1.timer / 100) * 10;
+                    star1.timer = 1000;
+                }
             }
         }
     }
@@ -113,25 +131,49 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
         paint.setColor(Color.WHITE);
 
         super.draw(canvas);
-        this.char1.draw(canvas);
 
-        for(Explosion explosion: this.explosionList)  {
-            explosion.draw(canvas);
+        if( start <= 0 && health > 0) {
+
+            this.char1.draw(canvas);
+
+            for (Explosion explosion : this.explosionList) {
+                explosion.draw(canvas);
+            }
+
+            for (Stars star1 : starList) {
+
+                star1.draw(canvas);
+                paint.setTextSize(15);
+                canvas.drawText(String.valueOf((star1.timer / 100) * 10), star1.x + 20, star1.y + 80, paint);
+            }
+
+            paint.setTextSize(40);
+            canvas.drawText("Score : " + score, 1650, 50, paint);
+
+            paint.setTextSize(40);
+            canvas.drawText("Health : " + health + "%", 500, 50, paint);
         }
+        else  if (start > 0){
+            paint.setTextSize(60);
+            canvas.drawText("Collect the Coins!", 800, 200, paint);
 
-        for (Stars star1: starList) {
+            paint.setTextSize(35);
+            canvas.drawText("Collect the coins and earn the points!!", 200, 400, paint);
+            canvas.drawText("Each coin has value associated with it, which decreases by 10 every second.", 200, 450, paint);
+            canvas.drawText("You will get the equal number of points as the coin has value when you collect it.", 200, 500, paint);
+            canvas.drawText("Once the coin value become 0, coin will explode and you will lose 10 points.", 200, 550, paint);
+            canvas.drawText("Your health will be reduced based on how close you are to the explosion.", 200, 600, paint);
+            canvas.drawText("Game will finish once your health becomes 0.", 200, 650, paint);
+            canvas.drawText("Good Luck!!! Game will start in " + String.valueOf(start/100) +" seconds..", 200, 1000, paint);
 
-            star1.draw(canvas);
-            paint.setTextSize(15);
-            canvas.drawText(String.valueOf((star1.timer/100)*10), star1.x + 20, star1.y + 80, paint);
+            start--;
         }
-
-
-        paint.setTextSize(40);
-        canvas.drawText("Score : " + score, 1650, 50, paint);
-
-        paint.setTextSize(25);
-        canvas.drawText("Collect the Coins! You will earn points based on coins value at the time you grab it, if coins value becomes 0, it will explode and you will lose 10 points!", 50, 1000, paint);
+        else if (health <= 0) {
+            paint.setTextSize(100);
+            canvas.drawText("Game Over!", 800, 500, paint);
+            paint.setTextSize(40);
+            canvas.drawText("Your Score : " + score, 900, 800, paint);
+        }
     }
 
 
@@ -140,27 +182,30 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
      //   this.setBackground(this.getResources().getDrawable(R.drawable.char2));
 
-        Bitmap char1Bitmap1 = BitmapFactory.decodeResource(this.getResources(),R.drawable.char1);
-        this.char1 = new GameCharacter(this, char1Bitmap1,500,500);
 
-        starArray[0] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star1);
-        starArray[1] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star2);
-        starArray[2] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star3);
-        starArray[3] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star4);
-        starArray[4] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star5);
-        starArray[5] = BitmapFactory.decodeResource(this.getResources(),R.drawable.star6);
 
-        for (int i = 0; i < 5; i++) {
+            Bitmap char1Bitmap1 = BitmapFactory.decodeResource(this.getResources(), R.drawable.char1);
+            this.char1 = new GameCharacter(this, char1Bitmap1, 500, 500);
 
-            Random rand = new Random();
-            int x = rand.nextInt((1800-10)+1) + 10;
-            int y = rand.nextInt((900-100)+1) + 100;
-            starList.add(new Stars(this, starArray[0], starArray, x, y));
-        }
+            starArray[0] = BitmapFactory.decodeResource(this.getResources(), R.drawable.star1);
+            starArray[1] = BitmapFactory.decodeResource(this.getResources(), R.drawable.star2);
+            starArray[2] = BitmapFactory.decodeResource(this.getResources(), R.drawable.star3);
+            starArray[3] = BitmapFactory.decodeResource(this.getResources(), R.drawable.star4);
+            starArray[4] = BitmapFactory.decodeResource(this.getResources(), R.drawable.star5);
+            starArray[5] = BitmapFactory.decodeResource(this.getResources(), R.drawable.star6);
 
-        this.gameThread = new GameThread(this, holder);
-        this.gameThread.setRunning(true);
-        this.gameThread.start();
+            for (int i = 0; i < 5; i++) {
+
+                Random rand = new Random();
+                int x = rand.nextInt((1800 - 10) + 1) + 10;
+                int y = rand.nextInt((800 - 100) + 1) + 100;
+                starList.add(new Stars(this, starArray[0], starArray, x, y));
+            }
+
+            this.gameThread = new GameThread(this, holder);
+            this.gameThread.setRunning(true);
+            this.gameThread.start();
+
     }
 
 
@@ -219,18 +264,14 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
     public void playSoundExplosion()  {
         if(this.soundPoolLoaded) {
-            float leftVolumn = 0.8f;
-            float rightVolumn =  0.8f;
-            int streamId = this.soundPool.play(this.soundExplosion,leftVolumn, rightVolumn, 1, 0, 1f);
+            this.soundPool.play(this.soundExplosion,0.8f, 0.8f, 1, 0, 1f);
         }
     }
 
 
     public void playSoundCoins()  {
         if(this.soundPoolLoaded) {
-            float leftVolumn = 0.8f;
-            float rightVolumn =  0.8f;
-            int streamId = this.soundPool.play(this.soundCoins,leftVolumn, rightVolumn, 1, 0, 1f);
+            this.soundPool.play(this.soundCoins,0.8f, 0.8f, 1, 0, 1f);
         }
     }
 }

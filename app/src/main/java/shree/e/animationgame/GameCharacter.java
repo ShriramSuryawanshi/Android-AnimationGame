@@ -102,7 +102,7 @@ public class GameCharacter extends GameObject {
             this.y = 0;
             this.targetY = - this.targetY;
 
-        } else if(this.y > this.gameSurface.getHeight() - 50 - height)  {
+        } else if(this.y > this.gameSurface.getHeight() - height)  {
             this.y = this.gameSurface.getHeight() - height;
             this.targetY = - this.targetY;
         }
