@@ -144,8 +144,8 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
             for (Stars star1 : starList) {
 
                 star1.draw(canvas);
-                paint.setTextSize(15);
-                canvas.drawText(String.valueOf((star1.timer / 100) * 10), star1.x + 20, star1.y + 80, paint);
+                paint.setTextSize(20);
+                canvas.drawText(String.valueOf((star1.timer / 100) * 10), star1.x + 20, star1.y + 90, paint);
             }
 
             paint.setTextSize(40);
